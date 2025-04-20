@@ -1,0 +1,31 @@
+{
+  "name": "flashcard-app",
+  "version": "1.0.0",
+  "description": "Final Project (flashcard study webapp)",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jwe891116/flashcard-app.git"
+  },
+  "author": "Joshua Emmanuel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Jwe891116/flashcard-app/issues"
+  },
+  "homepage": "https://github.com/Jwe891116/flashcard-app#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "method-override": "^3.0.0",
+    "pg": "^8.14.1"
+  }
+}

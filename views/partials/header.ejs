@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title || 'Task Management App' %></title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <h1>Flashcard WebApp</h1>
+
+  <!-- Error display section -->
+  <% if (errors && errors.length > 0) { %>
+    <div class="error-container">
+      <h3>Please fix the following errors:</h3>
+      <ul class="error-list">
+        <% errors.forEach(error => { %>
+          <li class="error-item"><%= error %></li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } %>
