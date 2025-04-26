@@ -4,6 +4,38 @@
 }) %>
 
 <div class="main-container">
+  <% if (typeof studyMode !== 'undefined' && studyMode) { %>
+    <div class="study-container">
+      <div class="flashcard" onclick="this.classList.toggle('flipped')">
+        <div class="flashcard-front">
+          <h3><%= flashcards[0].front %></h3>
+          <p>Click to flip</p>
+        </div>
+        <div class="flashcard-back">
+          <h3><%= flashcards[0].back %></h3>
+          <% if (flashcards[0].category) { %>
+            <p class="flashcard-category"><%= flashcards[0].category %></p>
+          <% } %>
+          <div class="difficulty-stars">
+            <% for (let i = 1; i <= 5; i++) { %>
+              <span class="star <%= i <= flashcards[0].difficulty ? 'filled' : '' %>">★</span>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <div class="study-controls">
+        <form action="/study" method="GET">
+          <% if (typeof categoryFilter !== 'undefined' && categoryFilter !== 'all') { %>
+            <input type="hidden" name="category" value="<%= categoryFilter %>">
+          <% } %>
+          <button type="submit">Next Card</button>
+        </form>
+        <a href="/" class="study-exit">Exit Study Mode</a>
+      </div>
+    </div>
+  <% } %>
+
   <!-- Create New Flashcard Section -->
   <section class="create-flashcard">
     <h2>Create New Flashcard</h2>
@@ -12,11 +44,11 @@
       <div class="form-top-row">
         <div class="form-group">
           <label for="front">Question/Term</label>
-          <textarea name="front" placeholder="Enter your question or term" required><%= typeof front !== 'undefined' ? front : '' %></textarea>
+          <textarea name="front" placeholder="Enter your question or term" ><%= typeof front !== 'undefined' ? front : '' %></textarea>
         </div>
         <div class="form-group">
           <label for="back">Answer/Definition</label>
-          <textarea name="back" placeholder="Enter the answer or definition" required><%= typeof back !== 'undefined' ? back : '' %></textarea>
+          <textarea name="back" placeholder="Enter the answer or definition" ><%= typeof back !== 'undefined' ? back : '' %></textarea>
         </div>
       </div>
 
@@ -121,90 +153,58 @@
     </div>
   <% } %>
   
-  <% if (typeof studyMode !== 'undefined' && studyMode) { %>
-    <div class="study-container">
-      <div class="flashcard" onclick="this.classList.toggle('flipped')">
-        <div class="flashcard-front">
-          <h3><%= flashcards[0].front %></h3>
-          <p>Click to flip</p>
-        </div>
-        <div class="flashcard-back">
-          <h3><%= flashcards[0].back %></h3>
-          <% if (flashcards[0].category) { %>
-            <p class="flashcard-category"><%= flashcards[0].category %></p>
+  <% if (typeof flashcards !== 'undefined' && flashcards.length === 0) { %>
+    <p>No flashcards found.</p>
+  <% } else if (typeof flashcards !== 'undefined' && !studyMode) { %>
+    <div class="flashcard-grid">
+      <% flashcards.forEach(flashcard => { %>
+        <div class="flashcard-preview">
+          <div class="flashcard-preview-front">
+            <h3><%= flashcard.front %></h3>
+          </div>
+          <div class="flashcard-actions">
+            <form action="/edit-flashcard" method="POST">
+              <input type="hidden" name="flashcardId" value="<%= flashcard.id %>">
+              <input type="hidden" name="front" value="<%= flashcard.front %>">
+              <input type="hidden" name="back" value="<%= flashcard.back %>">
+              <input type="hidden" name="category" value="<%= flashcard.category %>">
+              <input type="hidden" name="difficulty" value="<%= flashcard.difficulty %>">
+              <button type="submit">Edit</button>
+            </form>
+            <form action="/flashcards/<%= flashcard.id %>?_method=DELETE" method="POST">
+              <button type="submit">Delete</button>
+            </form>
+          </div>
+          <% if (flashcard.category) { %>
+            <p class="flashcard-category"><%= flashcard.category %></p>
           <% } %>
           <div class="difficulty-stars">
             <% for (let i = 1; i <= 5; i++) { %>
-              <span class="star <%= i <= flashcards[0].difficulty ? 'filled' : '' %>">★</span>
+              <span class="star <%= i <= flashcard.difficulty ? 'filled' : '' %>">★</span>
             <% } %>
           </div>
         </div>
-      </div>
-      
-      <div class="study-controls">
-        <form action="/study" method="GET">
-          <% if (typeof categoryFilter !== 'undefined' && categoryFilter !== 'all') { %>
-            <input type="hidden" name="category" value="<%= categoryFilter %>">
-          <% } %>
-          <button type="submit">Next Card</button>
-        </form>
-        <a href="/" class="study-exit">Exit Study Mode</a>
-      </div>
+      <% }) %>
     </div>
-  <% } else { %>
-    <% if (typeof flashcards !== 'undefined' && flashcards.length === 0) { %>
-      <p>No flashcards found.</p>
-    <% } else if (typeof flashcards !== 'undefined') { %>
-      <div class="flashcard-grid">
-        <% flashcards.forEach(flashcard => { %>
-          <div class="flashcard-preview">
-            <div class="flashcard-preview-front">
-              <h3><%= flashcard.front %></h3>
-            </div>
-            <div class="flashcard-actions">
-              <form action="/edit-flashcard" method="POST">
-                <input type="hidden" name="flashcardId" value="<%= flashcard.id %>">
-                <input type="hidden" name="front" value="<%= flashcard.front %>">
-                <input type="hidden" name="back" value="<%= flashcard.back %>">
-                <input type="hidden" name="category" value="<%= flashcard.category %>">
-                <input type="hidden" name="difficulty" value="<%= flashcard.difficulty %>">
-                <button type="submit">Edit</button>
-              </form>
-              <form action="/flashcards/<%= flashcard.id %>?_method=DELETE" method="POST">
-                <button type="submit">Delete</button>
-              </form>
-            </div>
-            <% if (flashcard.category) { %>
-              <p class="flashcard-category"><%= flashcard.category %></p>
-            <% } %>
-            <div class="difficulty-stars">
-              <% for (let i = 1; i <= 5; i++) { %>
-                <span class="star <%= i <= flashcard.difficulty ? 'filled' : '' %>">★</span>
-              <% } %>
-            </div>
-          </div>
-        <% }) %>
+
+    <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
+      <div class="pagination">
+        <% if (typeof hasPreviousPage !== 'undefined' && hasPreviousPage) { %>
+          <a href="/?page=<%= currentPage - 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
+            <button>&laquo; Prev</button>
+          </a>
+        <% } %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <a href="/?page=<%= i %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
+            <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
+          </a>
+        <% } %>
+        <% if (typeof hasNextPage !== 'undefined' && hasNextPage) { %>
+          <a href="/?page=<%= currentPage + 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
+            <button>Next &raquo;</button>
+          </a>
+        <% } %>
       </div>
-  
-      <% if (typeof totalPages !== 'undefined' && totalPages > 1) { %>
-        <div class="pagination">
-          <% if (typeof hasPreviousPage !== 'undefined' && hasPreviousPage) { %>
-            <a href="/?page=<%= currentPage - 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
-              <button>&laquo; Prev</button>
-            </a>
-          <% } %>
-          <% for (let i = 1; i <= totalPages; i++) { %>
-            <a href="/?page=<%= i %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
-              <button class="<%= i === currentPage ? 'active' : '' %>"><%= i %></button>
-            </a>
-          <% } %>
-          <% if (typeof hasNextPage !== 'undefined' && hasNextPage) { %>
-            <a href="/?page=<%= currentPage + 1 %><%= typeof search !== 'undefined' && search ? '&search=' + search : '' %><%= typeof categoryFilter !== 'undefined' && categoryFilter !== 'all' ? '&category=' + categoryFilter : '' %>">
-              <button>Next &raquo;</button>
-            </a>
-          <% } %>
-        </div>
-      <% } %>
     <% } %>
   <% } %>
 </div>

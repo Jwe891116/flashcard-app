@@ -1,6 +1,6 @@
 import { pool } from "../config/db.js";
 
-export const fetchAllFlashcards = async (searchTerm = '', category = 'all', page = 1, pageSize = 10) => {
+export const fetchAllFlashcards = async (searchTerm = '', category = 'all', page = 1, pageSize = 12) => {
   let query = "SELECT * FROM flashcards";
   const params = [];
   let conditions = [];

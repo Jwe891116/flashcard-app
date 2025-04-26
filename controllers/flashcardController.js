@@ -10,7 +10,7 @@ import {
 export const getAllFlashcards = async (req, res) => {
   try {
     const { search, category, page = 1 } = req.query;
-    const pageSize = 10;
+    const pageSize = 12;
     const flashcards = await fetchAllFlashcards(search, category, page, pageSize);
     const totalFlashcards = await getTotalFlashcardsCount(search, category);
     const totalPages = Math.ceil(totalFlashcards / pageSize);
@@ -20,7 +20,7 @@ export const getAllFlashcards = async (req, res) => {
       : null;
 
     res.render('index', {
-      title: 'Flashcard App', // Add this line
+      title: 'Flashcard App',
       flashcards,
       editingFlashcard: null,
       errors,
@@ -46,13 +46,13 @@ export const addFlashcard = async (req, res) => {
   const { front, back, category } = req.body;
   const difficulty = parseInt(req.body.difficulty) || 1;
 
-  const errors = validateFlashcardInput(front, back);
+  const errors = validateFlashcardInput(front, back, category);
   if (errors.length > 0) {
     const queryParams = new URLSearchParams();
     errors.forEach(e => queryParams.append('errors', e));
     queryParams.set('front', front);
-    if (back) queryParams.set('back', back);
-    if (category) queryParams.set('category', category);
+    queryParams.set('back', back || '');
+    queryParams.set('category', category || '');
     queryParams.set('difficulty', difficulty);
     return res.redirect(`/?${queryParams.toString()}`);
   }
@@ -82,12 +82,15 @@ export const updateFlashcard = async (req, res) => {
   const { front, back, category } = req.body;
   const difficulty = parseInt(req.body.difficulty) || 1;
 
-  const errors = validateFlashcardInput(front, back);
+  const errors = validateFlashcardInput(front, back, category);
   if (errors.length > 0) {
-    const errorQuery = errors.map(e => encodeURIComponent(e)).join('&errors=');
-    return res.redirect(
-      `/?errors=${errorQuery}&front=${encodeURIComponent(front)}&back=${encodeURIComponent(back || '')}`
-    );
+    const queryParams = new URLSearchParams();
+    errors.forEach(e => queryParams.append('errors', e));
+    queryParams.set('front', front);
+    queryParams.set('back', back || '');
+    queryParams.set('category', category || '');
+    queryParams.set('difficulty', difficulty);
+    return res.redirect(`/?${queryParams.toString()}`);
   }
 
   try {
@@ -107,9 +110,9 @@ export const prepareEditFlashcard = async (req, res) => {
   const page = refererUrl.searchParams.get('page') || 1;
 
   try {
-    const flashcards = await fetchAllFlashcards(search, categoryFilter, page, 10);
+    const flashcards = await fetchAllFlashcards(search, categoryFilter, page, 12);
     const totalFlashcards = await getTotalFlashcardsCount(search, categoryFilter);
-    const totalPages = Math.ceil(totalFlashcards / 10);
+    const totalPages = Math.ceil(totalFlashcards / 12);
 
     res.render('index', {
       flashcards,
@@ -148,7 +151,7 @@ export const startStudySession = async (req, res) => {
     }
 
     res.render('index', {
-      title: 'Study Mode', // Add this line
+      title: 'Study Mode',
       flashcards,
       editingFlashcard: null,
       errors: null,
@@ -171,21 +174,31 @@ export const startStudySession = async (req, res) => {
   }
 };
 
-function validateFlashcardInput(front, back) {
+function validateFlashcardInput(front, back, category) {
   const errors = [];
   
+  // Front (Question/Term) validation
   if (!front || front.trim().length === 0) {
-    errors.push("Front text is required");
+    errors.push("Question/Term is required");
   } else if (front.trim().length < 3) {
-    errors.push("Front text must be at least 3 characters");
+    errors.push("Question/Term must be at least 3 characters");
   } else if (front.trim().length > 500) {
-    errors.push("Front text cannot exceed 500 characters");
+    errors.push("Question/Term cannot exceed 500 characters");
   }
 
+  // Back (Answer/Definition) validation
   if (!back || back.trim().length === 0) {
-    errors.push("Back text is required");
+    errors.push("Answer/Definition is required");
   } else if (back.trim().length > 1000) {
-    errors.push("Back text cannot exceed 1000 characters");
+    errors.push("Answer/Definition cannot exceed 1000 characters");
+  }
+
+  // Category validation (optional field)
+  if(!category || category.trim().length ===0) {
+    errors.push("Category is required");
+  }
+  else if (category.trim().length > 50) {
+    errors.push("Category cannot exceed 50 characters");
   }
 
   return errors;
