@@ -29,7 +29,7 @@ export const getAllFlashcards = async (req, res) => {
       category: req.query.category || '',
       difficulty: req.query.difficulty || 1,
       search: search || '',
-      categoryFilter: category || 'all',
+      categoryFilter: category,
       currentPage: parseInt(page),
       totalPages,
       hasPreviousPage: page > 1,
@@ -106,7 +106,7 @@ export const prepareEditFlashcard = async (req, res) => {
   const { flashcardId, front, back, category, difficulty } = req.body;
   const refererUrl = new URL(req.headers.referer);
   const search = refererUrl.searchParams.get('search') || '';
-  const categoryFilter = refererUrl.searchParams.get('category') || 'all';
+  const categoryFilter = refererUrl.searchParams.get('category');
   const page = refererUrl.searchParams.get('page') || 1;
 
   try {
@@ -129,7 +129,7 @@ export const prepareEditFlashcard = async (req, res) => {
       category: '',
       difficulty: 1,
       search: search || '',
-      categoryFilter: categoryFilter || 'all',
+      categoryFilter: categoryFilter,
       currentPage: parseInt(page),
       totalPages,
       hasPreviousPage: page > 1,
@@ -160,7 +160,7 @@ export const startStudySession = async (req, res) => {
       category: '',
       difficulty: 1,
       search: '',
-      categoryFilter: category || 'all',
+      categoryFilter: category,
       currentPage: 1,
       totalPages: 1,
       hasPreviousPage: false,

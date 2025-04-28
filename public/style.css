@@ -318,3 +318,16 @@ footer {
 .star.filled {
   color: #f1c40f;
 }
+
+  .error-border {
+    border: 2px solid #ff0000 !important;
+  }
+  .error-message {
+    color: #ff0000;
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+    display: block;
+  }
+  .flashcard-form.submitted .form-group:has(.error-border) {
+    margin-bottom: 1.5rem;
+  }

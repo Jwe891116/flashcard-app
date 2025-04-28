@@ -8,34 +8,35 @@
     <div class="study-container">
       <div class="flashcard" onclick="this.classList.toggle('flipped')">
         <div class="flashcard-front">
-          <h3><%= flashcards[0].front %></h3>
+          <h3><%= flashcards[currentCardIndex].front %></h3>
           <p>Click to flip</p>
         </div>
         <div class="flashcard-back">
-          <h3><%= flashcards[0].back %></h3>
-          <% if (flashcards[0].category) { %>
-            <p class="flashcard-category"><%= flashcards[0].category %></p>
+          <h3><%= flashcards[currentCardIndex].back %></h3>
+          <% if (flashcards[currentCardIndex].category) { %>
+            <p class="flashcard-category"><%= flashcards[currentCardIndex].category %></p>
           <% } %>
           <div class="difficulty-stars">
             <% for (let i = 1; i <= 5; i++) { %>
-              <span class="star <%= i <= flashcards[0].difficulty ? 'filled' : '' %>">★</span>
+              <span class="star <%= i <= flashcards[currentCardIndex].difficulty ? 'filled' : '' %>">★</span>
             <% } %>
           </div>
         </div>
       </div>
       
       <div class="study-controls">
-        <form action="/study" method="GET">
+        <form action="/study/next" method="GET">
           <% if (typeof categoryFilter !== 'undefined' && categoryFilter !== 'all') { %>
             <input type="hidden" name="category" value="<%= categoryFilter %>">
           <% } %>
+          <input type="hidden" name="currentIndex" value="<%= currentCardIndex %>">
           <button type="submit">Next Card</button>
         </form>
         <a href="/" class="study-exit">Exit Study Mode</a>
       </div>
     </div>
   <% } %>
-
+  
   <!-- Create New Flashcard Section -->
   <section class="create-flashcard">
     <h2>Create New Flashcard</h2>
@@ -44,11 +45,29 @@
       <div class="form-top-row">
         <div class="form-group">
           <label for="front">Question/Term</label>
-          <textarea name="front" placeholder="Enter your question or term" ><%= typeof front !== 'undefined' ? front : '' %></textarea>
+          <textarea 
+            name="front" 
+            placeholder="Enter your question or term"
+            class="<%= errors && errors.some(e => e.includes('Question/Term')) ? 'error-border' : '' %>"
+          ><%= typeof front !== 'undefined' ? front : '' %></textarea>
+          <% if (errors && errors.some(e => e.includes('Question/Term'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Question/Term')) %>
+            </span>
+          <% } %>
         </div>
         <div class="form-group">
           <label for="back">Answer/Definition</label>
-          <textarea name="back" placeholder="Enter the answer or definition" ><%= typeof back !== 'undefined' ? back : '' %></textarea>
+          <textarea 
+            name="back" 
+            placeholder="Enter the answer or definition"
+            class="<%= errors && errors.some(e => e.includes('Answer/Definition')) ? 'error-border' : '' %>"
+          ><%= typeof back !== 'undefined' ? back : '' %></textarea>
+          <% if (errors && errors.some(e => e.includes('Answer/Definition'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Answer/Definition')) %>
+            </span>
+          <% } %>
         </div>
       </div>
 
@@ -56,7 +75,18 @@
       <div class="form-middle-row">
         <div class="form-group">
           <label for="category">Category</label>
-          <input type="text" name="category" placeholder="e.g. JavaScript, Biology" value="<%= typeof category !== 'undefined' ? category : '' %>">
+          <input 
+            type="text" 
+            name="category" 
+            placeholder="e.g. JavaScript, Biology"
+            class="<%= errors && errors.some(e => e.includes('Category')) ? 'error-border' : '' %>"
+            value="<%= typeof category !== 'undefined' ? category : '' %>"
+          >
+          <% if (errors && errors.some(e => e.includes('Category'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Category')) %>
+            </span>
+          <% } %>
         </div>
         <div class="form-group">
           <label for="difficulty">Difficulty Level</label>
@@ -104,7 +134,7 @@
         </div>
         <div class="action-buttons">
           <button type="submit" class="btn">Apply Filter</button>
-          <% if (typeof categoryFilter !== 'undefined' && categoryFilter !== 'all') { %>
+          <% if (typeof categoryFilter !== 'undefined') { %>
             <a href="/" class="clear-btn">Clear</a>
           <% } %>
         </div>
@@ -129,15 +159,43 @@
         <h3>Edit Flashcard</h3>
         <div class="form-group">
           <label for="front">Front</label>
-          <textarea name="front" required><%= editingFlashcard.front || '' %></textarea>
+          <textarea 
+            name="front" 
+            required
+            class="<%= errors && errors.some(e => e.includes('Question/Term')) ? 'error-border' : '' %>"
+          ><%= editingFlashcard.front || '' %></textarea>
+          <% if (errors && errors.some(e => e.includes('Question/Term'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Question/Term')) %>
+            </span>
+          <% } %>
         </div>
         <div class="form-group">
           <label for="back">Back</label>
-          <textarea name="back" required><%= editingFlashcard.back || '' %></textarea>
+          <textarea 
+            name="back" 
+            required
+            class="<%= errors && errors.some(e => e.includes('Answer/Definition')) ? 'error-border' : '' %>"
+          ><%= editingFlashcard.back || '' %></textarea>
+          <% if (errors && errors.some(e => e.includes('Answer/Definition'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Answer/Definition')) %>
+            </span>
+          <% } %>
         </div>
         <div class="form-group">
           <label for="category">Category</label>
-          <input type="text" name="category" value="<%= editingFlashcard.category || '' %>">
+          <input 
+            type="text" 
+            name="category"
+            class="<%= errors && errors.some(e => e.includes('Category')) ? 'error-border' : '' %>"
+            value="<%= editingFlashcard.category || '' %>"
+          >
+          <% if (errors && errors.some(e => e.includes('Category'))) { %>
+            <span class="error-message">
+              <%= errors.find(e => e.includes('Category')) %>
+            </span>
+          <% } %>
         </div>
         <div class="form-group">
           <label for="difficulty">Difficulty (1-5)</label>
